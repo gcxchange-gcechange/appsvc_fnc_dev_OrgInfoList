@@ -1,21 +1,21 @@
 trigger:
-    branches:
-        include:
-        -'*'
+  branches:
+    include:
+    - '*'
 
 pool:
-    vmImage: ubuntu - latest
+  vmImage: ubuntu-latest
 
 steps:
--script: |
-   echo Sync azure repo
+- script: |
+    echo Sync azure repo
     B64_PAT=$(echo -n ":$PAT" | base64)
-    git - c http.extraHeader = "Authorization: Basic ${B64_PAT}" clone--bare https://dev.azure.com/tbs-sct/GCExchange/_git/$REPO_NAME
+    git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone --bare https://dev.azure.com/tbs-sct/GCExchange/_git/$REPO_NAME
     cd $REPO_NAME
     git remote add --mirror=fetch upstream https://github.com/gcxchange-gcechange/$REPO_NAME
     git fetch upstream --tags
     git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push origin --all
-env:
+  env:
     PAT: $(PAT)
-    REPO_NAME: "appsvc-fnc-dev-OrgInfoList.git"
-displayName: 'Sync repo'
+    REPO_NAME: "appsvc-fnc-dev-OrgInfoList"
+  displayName: 'Sync repo'
