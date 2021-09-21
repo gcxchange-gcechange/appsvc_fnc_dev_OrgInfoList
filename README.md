@@ -14,8 +14,6 @@ tenantId = Tenant id
 
 ----------------
 
-# appsvc-fnc-dev-OrgInfoList
-
 Cette fonction récupère les élements de deux listes SharePoint. Une pour les noms de domaine et l'autre pour les départments.
 
 ## Paramètres requis
