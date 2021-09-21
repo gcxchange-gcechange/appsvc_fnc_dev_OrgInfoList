@@ -17,5 +17,5 @@ steps:
     git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push origin --all
   env:
     PAT: $(PAT)
-    REPO_NAME: "appsvc-fnc-dev-OrgInfoList"
+    REPO_NAME: "appsvc_fnc_dev_OrgInfoList"
   displayName: 'Sync repo'
