@@ -45,7 +45,7 @@ namespace appsvc_fnc_dev_OrgInfoList
             }
             catch (Exception ex)
             {
-                log.LogInformation($"Error when try get domain {ex}");
+                log.LogInformation($"Error when try get all domain {ex}");
                 return new BadRequestObjectResult(ex);
             }
         }
