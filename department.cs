@@ -31,17 +31,28 @@ namespace appsvc_fnc_dev_OrgInfoList
             string siteid = config["SiteId"];
             string listid = config["ListDepartment"];
 
-            var queryOptions = new List<QueryOption>()
+            var queryOptions = new List<QueryOption>
             {
-                new QueryOption("expand", "fields(select=Legal_x0020_Title,Appellation_x0020_l_x00e9_gale,Abbr_x002e_,Abr_x00e9_v_x002e_,RG_x0020_Code)")
+                new QueryOption("expand", "fields(select=Legal_x0020_Title,Appellation_x0020_l_x00e9_gale,Abbr_x002e_,Abr_x00e9_v_x002e_,RG_x0020_Code)"),
             };
 
             try
             {
+                List<ListItem> itemList = new List<ListItem>();
+
                 IListItemsCollectionPage items = await graphAPIAuth.Sites[siteid].Lists[listid].Items
                 .Request(queryOptions)
                 .GetAsync();
-                return new OkObjectResult(items);
+
+                itemList.AddRange(items.CurrentPage);
+
+                while (items.NextPageRequest != null)
+                {
+                    items = await items.NextPageRequest.GetAsync();
+                    itemList.AddRange(items.CurrentPage);
+                }
+
+                return new OkObjectResult(itemList);
             }
             catch (Exception ex)
             {

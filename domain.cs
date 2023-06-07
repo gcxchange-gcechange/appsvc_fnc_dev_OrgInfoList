@@ -33,15 +33,26 @@ namespace appsvc_fnc_dev_OrgInfoList
 
             var queryOptions = new List<QueryOption>()
             {
-                new QueryOption("expand", "fields(select=Legal_x0020_Title,RG_x0020_Code,GoCDomain)")
+                new QueryOption("expand", "fields(select=Legal_x0020_Title,RG_x0020_Code,GoCDomain)"),
             };
             
             try
             {
+                List<ListItem> itemList = new List<ListItem>();
+
                 IListItemsCollectionPage  items = await graphAPIAuth.Sites[siteid].Lists[listid].Items
                 .Request(queryOptions)
                 .GetAsync();
-                return new OkObjectResult(items);
+
+                itemList.AddRange(items.CurrentPage);
+
+                while (items.NextPageRequest != null)
+                {
+                    items = await items.NextPageRequest.GetAsync();
+                    itemList.AddRange(items.CurrentPage);
+                }
+
+                return new OkObjectResult(itemList);
             }
             catch (Exception ex)
             {
