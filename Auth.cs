@@ -43,32 +43,6 @@ namespace appsvc_fnc_dev_OrgInfoList
 
             string secretValue = secret.Value;
 
-            //IConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplicationBuilder
-            //.Create(clientId)
-            //.WithTenantId(tenantid)
-            //.WithClientSecret(secretValue)
-            //.Build();
-
-            //// Build the Microsoft Graph client. As the authentication provider, set an async lambda
-            //// which uses the MSAL client to obtain an app-only access token to Microsoft Graph,
-            //// and inserts this access token in the Authorization header of each API request. 
-            //GraphServiceClient graphServiceClient =
-            //    new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
-            //    {
-
-            //        // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-            //        var authResult = await confidentialClientApplication
-            //            .AcquireTokenForClient(scopes)
-            //            .ExecuteAsync();
-
-            //        // Add the access token in the Authorization header of the API request.
-            //        requestMessage.Headers.Authorization =
-            //            new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-            //    })
-            //    );
-            //return graphServiceClient;
-
-
             // using Azure.Identity;
             var tokenOptions = new TokenCredentialOptions
             {
@@ -90,7 +64,6 @@ namespace appsvc_fnc_dev_OrgInfoList
                     log.LogInformation($"InnerException: {e.InnerException.Message}");
                 return null;
             }
-
         }
     }
 }
