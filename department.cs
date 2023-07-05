@@ -5,9 +5,10 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Graph;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Graph.Models;
+using Microsoft.Kiota.Abstractions;
 
 namespace appsvc_fnc_dev_OrgInfoList
 {
@@ -31,17 +32,29 @@ namespace appsvc_fnc_dev_OrgInfoList
             string siteid = config["SiteId"];
             string listid = config["ListDepartment"];
 
-            var queryOptions = new List<QueryOption>()
-            {
-                new QueryOption("expand", "fields(select=Legal_x0020_Title,Appellation_x0020_l_x00e9_gale,Abbr_x002e_,Abr_x00e9_v_x002e_,RG_x0020_Code)")
-            };
-
             try
             {
-                IListItemsCollectionPage items = await graphAPIAuth.Sites[siteid].Lists[listid].Items
-                .Request(queryOptions)
-                .GetAsync();
-                return new OkObjectResult(items);
+                List<ListItem> itemList = new List<ListItem>();
+
+                var items = await graphAPIAuth.Sites[siteid].Lists[listid].Items.GetAsync((requestConfiguration) =>
+                {
+                    requestConfiguration.QueryParameters.Expand = new string[] { "fields($select=Legal_x0020_Title,Appellation_x0020_l_x00e9_gale,Abbr_x002e_,Abr_x00e9_v_x002e_,RG_x0020_Code)" };
+                });
+                itemList.AddRange(items.Value);
+
+                while (items.OdataNextLink != null)
+                {
+                    var nextPageRequestInformation = new RequestInformation
+                    {
+                        HttpMethod = Method.GET,
+                        UrlTemplate = items.OdataNextLink
+                    };
+
+                    items = await graphAPIAuth.RequestAdapter.SendAsync(nextPageRequestInformation, (parseNode) => new ListItemCollectionResponse());
+                    itemList.AddRange(items.Value);
+                }
+
+                return new OkObjectResult(itemList);
             }
             catch (Exception ex)
             {
