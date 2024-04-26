@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Graph.Models;
 using Microsoft.Kiota.Abstractions;
 using Newtonsoft.Json;
+using Microsoft.Graph.Models.ODataErrors;
 
 namespace appsvc_fnc_dev_OrgInfoList
 {
@@ -83,6 +84,12 @@ namespace appsvc_fnc_dev_OrgInfoList
                 }
 
                 return new OkObjectResult(JsonConvert.SerializeObject(domains));
+            }
+            catch (ODataError odataError)
+            {
+                log.LogError($"ODataError Code: {odataError.Error.Code}");
+                log.LogError($"ODataError Message: {odataError.Error.Message}");
+                return new BadRequestObjectResult(odataError);
             }
             catch (Exception ex)
             {
