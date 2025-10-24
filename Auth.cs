@@ -4,9 +4,6 @@ using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
-using Microsoft.Identity.Client;
-using System;
-using System.Net.Http.Headers;
 
 namespace appsvc_fnc_dev_OrgInfoList
 {
