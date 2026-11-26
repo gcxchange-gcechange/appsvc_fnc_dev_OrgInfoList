@@ -1,8 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -10,12 +8,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Graph.Models;
 using Microsoft.Kiota.Abstractions;
 using Newtonsoft.Json;
+using Microsoft.Azure.Functions.Worker;
 
 namespace appsvc_fnc_dev_OrgInfoList
 {
-    public static class domain
+    public class Domain
     {
-        private class Domain
+        private readonly ILogger<Domain> log;
+
+        public Domain(ILogger<Domain> logger)
+        {
+            log = logger;
+        }
+
+        private class DomainInfo
         {
             public string Legal_x0020_Title { get; set; }
             public string Appellation_x0020_l_x00e9_gale { get; set; }
@@ -24,7 +30,7 @@ namespace appsvc_fnc_dev_OrgInfoList
             public string RG_x0020_Code { get; set; }
             public string GoCDomain { get; set; }
 
-            public Domain(string TitleEn, string TitleFr, string abbreviationEn, string abbreviationFr, string RGCode, string _GoCDomain)
+            public DomainInfo(string TitleEn, string TitleFr, string abbreviationEn, string abbreviationFr, string RGCode, string _GoCDomain)
             {
                 Legal_x0020_Title = TitleEn;
                 Appellation_x0020_l_x00e9_gale = TitleFr;
@@ -35,10 +41,8 @@ namespace appsvc_fnc_dev_OrgInfoList
             }
         }
 
-        [FunctionName("Domain")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.System, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        [Function("Domain")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.System, "get", "post", Route = null)] HttpRequest req)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
             IConfiguration config = new ConfigurationBuilder()
@@ -56,7 +60,7 @@ namespace appsvc_fnc_dev_OrgInfoList
             try
             {
                 List<ListItem> itemList = new List<ListItem>();
-                List<Domain> domains = new();
+                List<DomainInfo> domains = new();
 
                 var items = await graphAPIAuth.Sites[siteid].Lists[listid].Items.GetAsync((requestConfiguration) =>
                 {
@@ -79,7 +83,7 @@ namespace appsvc_fnc_dev_OrgInfoList
 
                 foreach (var item in itemList)
                 {
-                    domains.Add(new Domain(GetValue(item, "Legal_x0020_Title"), GetValue(item, "Appellation_x0020_l_x00e9_gale"), GetValue(item, "Abbr_x002e_"), GetValue(item, "Abr_x00e9_v_x002e_"), GetValue(item, "RG_x0020_Code"), GetValue(item, "GoCDomain")));
+                    domains.Add(new DomainInfo(GetValue(item, "Legal_x0020_Title"), GetValue(item, "Appellation_x0020_l_x00e9_gale"), GetValue(item, "Abbr_x002e_"), GetValue(item, "Abr_x00e9_v_x002e_"), GetValue(item, "RG_x0020_Code"), GetValue(item, "GoCDomain")));
                 }
 
                 return new OkObjectResult(JsonConvert.SerializeObject(domains));
